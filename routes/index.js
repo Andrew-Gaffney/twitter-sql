@@ -8,10 +8,10 @@ module.exports = router;
 // a reusable function
 function respondWithAllTweets (req, res, next){
   var allTheTweets = [];
-  client.query('SELECT name, content FROM tweets INNER JOIN users ON users.id = tweets.user_id', function(err, result) {
+  client.query('SELECT name, content, tweets.id AS id1 FROM tweets INNER JOIN users ON users.id = tweets.user_id', function(err, result) {
     if (err) throw err;
     allTheTweets = result.rows.map(function(elem){
-      return {name: elem.name, content: elem.content};
+      return {name: elem.name, content: elem.content, id: elem.id1};
     });
     console.log(allTheTweets);
     res.render('index', {
@@ -47,12 +47,12 @@ router.get('/users/:username', function(req, res, next){
 
 // single-tweet page
 router.get('/tweets/:id', function(req, res, next){
-  client.query('SELECT name, content FROM tweets INNER JOIN users ON users.id = tweets.user_id'
+  client.query('SELECT name, content, tweets.id AS id FROM tweets INNER JOIN users ON users.id = tweets.user_id'
   + ' WHERE tweets.id=$1', [req.params.id],
     function(err, results){
       if (err) throw err;
-      var tweetsWithThatId = [{name: results.rows[0].name, content: results.rows[0].content}];
-      // console.log(tweetsWithThatId);
+      var tweetsWithThatId = [results.rows[0]];
+      console.log(tweetsWithThatId + 'I STAND OUT!');
       res.render('index', {
         title: 'Twitter.js',
         tweets: tweetsWithThatId // an array of only one element ;-)
